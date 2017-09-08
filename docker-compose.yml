@@ -43,6 +43,11 @@ services:
   telegraf:
     container_name: telegraf
     build: ./telegraf
+    environment:
+      TELEGRAF_HOSTNAME: "telegraf"
+      INFLUXDB_DATABASE: "telegraf"
+      INFLUXDB_HOST: "influxdb"
+      INFLUXDB_PORT: "8086"
     volumes:
       - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
       - /var/run/docker.sock:/var/run/docker.sock
