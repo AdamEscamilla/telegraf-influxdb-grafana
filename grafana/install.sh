@@ -7,34 +7,6 @@
 chown -R grafana:grafana "$GF_PATHS_DATA" "$GF_PATHS_LOGS"
 chown -R grafana:grafana /etc/grafana
 
-# This will be used in the future
-#plugins=`grafana-cli plugins list-remote | awk '{print $2}'| grep "-"`
-#for i in $plugins; do grafana-cli plugins install $i; done
-
-if [ ! -z ${GF_INSTALL_PLUGINS} ]; then
-  OLDIFS=$IFS
-  IFS=','
-  for plugin in ${GF_INSTALL_PLUGINS}; do
-    if [ ! -d ${GF_PATHS_PLUGINS}/${plugin} ]
-    then
-      echo "Plugin ${plugin} not installed. Starting installation."
-      grafana-cli plugins install ${plugin}
-    else 
-      echo "Plugin ${plugin} already installed. Skipping"
-    fi
-  done
-  IFS=$OLDIFS
-fi
-
-exec gosu grafana /usr/sbin/grafana-server  \
-  --homepath=/usr/share/grafana             \
-  --config=/etc/grafana/grafana.ini         \
-  cfg:default.paths.data="$GF_PATHS_DATA"   \
-  cfg:default.paths.logs="$GF_PATHS_LOGS"   \
-  cfg:default.paths.plugins="$GF_PATHS_PLUGINS" &
-
-sleep 5
-
 ###############################################################
 # Creating Default Data Source
 
@@ -90,5 +62,3 @@ else
   #Continue if it doesn't exists
   echo "Data Source '"${INFLUXDB_DATA_SOURCE}"' already exists."
 fi
-
-tail -f $GF_PATHS_LOGS/grafana.log
