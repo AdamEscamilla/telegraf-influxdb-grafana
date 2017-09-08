@@ -42,7 +42,7 @@ services:
 
   telegraf:
     container_name: telegraf
-    image: telegraf:latest
+    build: ./telegraf
     volumes:
       - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
       - /var/run/docker.sock:/var/run/docker.sock
