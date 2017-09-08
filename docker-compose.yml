@@ -26,54 +26,40 @@ services:
     container_name: influxdb
     build: ./influxdb
     ports:
-      - 8083:8083
       - 8086:8086
     environment:
-      INFLUX_DATABASE: "telegraf"
-      INLFUX_ADMIN_USER: "grafana"
-      INFLUX_ADMIN_PASS: "grafana"
+      INFLUXDB_DATABASE: "telegraf"
+      INLFUXDB_ADMIN_USER: "grafana"
+      INFLUXDB_ADMIN_PASS: "grafana"
+      INFLUXDB_DATA_WALDIR: /var/lib/influxdb/wal
+      INFLUXDB_DATA_DIR: /var/lib/influxdb/data
+      INFLUXDB_META_DIR: /var/lib/influxdb/meta
+      INFLUXDB_DATA_ENGINE: tsm1
     volumes_from:
       - influxdb-data
     healthcheck:
       test: exit 0
 
-
   telegraf:
     container_name: telegraf
-    build: ./telegraf
-    links:
-      - influxdb:influxdb
-    environment:
-      HOST_NAME: "telegraf"
-      INFLUXDB_HOST: "influxdb"
-      INFLUXDB_PORT: "8086"
-      DATABASE: "telegraf"
-    tty: true
+    image: telegraf:latest
     volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
       - /var/run/docker.sock:/var/run/docker.sock
     privileged: true
     healthcheck:
       test: exit 0
 
-
   grafana:
     container_name: grafana
-    build: ./grafana
+    image: grafana/grafana:latest
     ports:
       - 3000:3000
-    links:
-      - influxdb:influxdb
     environment:
-      GF_INSTALL_PLUGINS: "abhisant-druid-datasource,alexanderzobnin-zabbix-app,bosun-app,bosun-datasource,briangann-gauge-panel,crate-datasource,digiapulssi-breadcrumb-panel,fastweb-openfalcon-datasource,fetzerch-sunandmoon-datasource,foursquare-clouderamanager-datasource,grafana-clock-panel,grafana-example-app,grafana-influxdb-08-datasource,grafana-kairosdb-datasource,grafana-piechart-panel,grafana-simple-json-datasource,grafana-worldmap-panel,gridprotectionalliance-openhistorian-datasource,gridprotectionalliance-osisoftpi-datasource,hawkular-datasource,jdbranham-diagram-panel,kentik-app,mtanda-heatmap-epoch-panel,mtanda-histogram-panel,ns1-app,opennms-datasource,percona-percona-app,praj-ams-datasource,rackerlabs-blueflood-datasource,raintank-snap-app,raintank-worldping-app,ryantxu-ajax-panel,savantly-heatmap-panel,sileht-gnocchi-datasource,sraoss-sunburst-panel,stagemonitor-elasticsearch-app,udoprog-heroic-datasource,voxter-app"
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_SECURITY_SECRET_KEY: grafana
-      GF_USERS_ALLOW_SIGN_UP: "false"
-      GF_USERS_ALLOW_ORG_CREATE: "true"
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
-      GF_AUTH_ANONYMOUS_ORG_NAME: grafana
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+      GF_SECURITY_ADMIN_USER: "admin"
+      GF_SECURITY_SECRET_KEY: "grafana"
       GF_DASHBOARDS_JSON_ENABLED: "true"
-      GF_DASHBOARDS_JSON_PATH: /opt/grafana
     volumes_from:
       - grafana-data
     restart: always
