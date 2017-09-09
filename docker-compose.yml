@@ -44,13 +44,14 @@ services:
     container_name: telegraf
     build: ./telegraf
     environment:
-      TELEGRAF_HOSTNAME: "telegraf"
+      HOSTNAME: "telegraf"
       INFLUXDB_DATABASE: "telegraf"
-      INFLUXDB_HOST: "influxdb"
-      INFLUXDB_PORT: "8086"
+      INFLUXDB_URL: "http://influxdb:8086"
+      TAG_dc: "us-east-1"
     volumes:
       - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
       - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/utmp:/var/run/utmp:ro
     privileged: true
     healthcheck:
       test: exit 0
